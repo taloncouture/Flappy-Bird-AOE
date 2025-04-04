@@ -6,23 +6,30 @@ HEIGHT = 768
 SCALEFACTOR = 2
 FPS = 60
 
+score = 0
+
 
 pygame.init()
+pygame.font.init()
 pygame.display.set_caption("Roaree Flappy Bird")
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 
+vga_font = pygame.font.Font("VGA9.ttf", 30)
+vga_large = pygame.font.Font("VGA9.ttf", 60)
+#score_surface = vga_font.render(str(score), False, (0, 0, 0))
 
-
-# background_image = pygame.image.load("background2.png")
-# background_image = pygame.transform.scale(background_image, (background_image.get_width() * 3, background_image.get_height() * 3))
+background_image = pygame.image.load("background3_0.png")
+background_image = pygame.transform.scale(background_image, (background_image.get_width(), background_image.get_height()))
 
 ground_image = pygame.image.load("ground.png")
 ground_image = pygame.transform.scale(ground_image, (ground_image.get_width() * 4, ground_image.get_height() * 4))
 
 roaree_image = pygame.image.load("roaree.png")
 roaree_image = pygame.transform.scale(roaree_image, (roaree_image.get_width() *  3, roaree_image.get_height() * 3))
+
+roaree_large = pygame.transform.scale(roaree_image, (roaree_image.get_width() *  2, roaree_image.get_height() * 2))
 
 building_image = pygame.image.load("building.png")
 building_image = pygame.transform.scale(building_image, (building_image.get_width() * 3, building_image.get_height() * 3))
@@ -52,14 +59,6 @@ class Building(pygame.sprite.Sprite):
 
     def update(self):
         self.rect.x -= 5
-
-        if(self.rect.x + self.rect.width < 0):
-            self.rect.x += 1200
-
-            if(self.bottom):
-                self.rect.y = random.randint(building_min, building_max)
-            else:
-                self.rect.y = buildings[self.index - 1].rect.y - building_image.get_height() - gap
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)
@@ -96,16 +95,22 @@ class Roaree(pygame.sprite.Sprite):
         surface.blit(self.image, self.rect)
 
 buildings = []
+roaree = Roaree(WIDTH / 2, HEIGHT / 2)
 
+def init_game():
+
+    buildings.clear()
+
+    buildings.append(Building(WIDTH, random.randint(building_min, building_max), True, 0))
+    buildings.append(Building(WIDTH, buildings[0].rect.y - building_image.get_height() - gap, False, 1))
+    buildings.append(Building(WIDTH + 600, random.randint(building_min, building_max), True, 2))
+    buildings.append(Building(WIDTH + 600, buildings[2].rect.y - building_image.get_height() - gap, False, 3))
 
 running = True
+playing = False
+initalized = False
 
-roaree = Roaree(100, 100)
-
-buildings.append(Building(WIDTH, random.randint(building_min, building_max), True, 0))
-buildings.append(Building(WIDTH, buildings[0].rect.y - building_image.get_height() - gap, False, 1))
-buildings.append(Building(WIDTH + 600, random.randint(building_min, building_max), True, 2))
-buildings.append(Building(WIDTH + 600, buildings[2].rect.y - building_image.get_height() - gap, False, 3))
+init_game()
 
 while running:
 
@@ -114,26 +119,76 @@ while running:
             running = False
             pygame.quit()
 
-    #screen.blit(background_image, (background_x, 0))
-    screen.fill((66, 191, 245))
-    #background_x -= 1
+    keys = pygame.key.get_pressed()
+
+    if(keys[pygame.K_SPACE] and playing == False):
+        init_game()
+        initalized = True
+        score = 0
+        roaree.rect.x = 100
+        roaree.rect.y = 100
+        playing = True
 
     
+    screen.fill((66, 191, 245))
+    
 
-    roaree.draw(screen)
-    roaree.input()
-    roaree.update()
+    if(initalized):
 
-    for building in buildings:
+        screen.blit(background_image, (background_x, 0))
+        screen.blit(background_image, (background_x + background_image.get_width(), 0))
 
-        building.draw(screen)
-        building.update()
+        for building in buildings:
+            building.draw(screen)
+
+        screen.blit(ground_image, (ground_x, screen.get_height() - ground_image.get_height()))
+        roaree.draw(screen)
+
+    else:
+
+        screen.blit(roaree_large, roaree_large.get_rect(center = (WIDTH / 2, HEIGHT / 2)))
 
 
-    screen.blit(ground_image, (ground_x, screen.get_height() - ground_image.get_height()))
-    ground_x -= 5
-    if(ground_x < -128):
-        ground_x = 0
+    if(playing):
+
+        
+        roaree.input()
+        roaree.update()
+
+        for building in buildings:
+
+            building.update()
+            
+            if(roaree.rect.colliderect(building.rect) or (roaree.rect.y + roaree.rect.height) >= HEIGHT - 44):
+                playing = False
+
+            if(building.rect.x + building.rect.width < 0):
+                building.rect.x += 1200
+
+                if(building.bottom):
+                    building.rect.y = random.randint(building_min, building_max)
+                    score += 1
+                else:
+                    building.rect.y = buildings[building.index - 1].rect.y - building_image.get_height() - gap
+        
+        ground_x -= 5
+        if(ground_x < -128):
+            ground_x = 0
+
+        
+        
+        if(background_x <= -background_image.get_width()):
+            background_x = 0
+        
+        background_x -= 1
+
+        score_surface = vga_font.render(str(score), False, (0, 0, 0))
+        screen.blit(score_surface, score_surface.get_rect(midtop = (WIDTH / 2, 20)))
+
+    elif(initalized):
+
+        final_score = vga_large.render(str(score), False, (0, 0, 0))
+        screen.blit(final_score, final_score.get_rect(center = (WIDTH / 2, HEIGHT / 2)))
 
     pygame.display.update()
     clock.tick(FPS)
