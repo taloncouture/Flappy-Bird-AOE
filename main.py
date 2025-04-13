@@ -27,7 +27,7 @@ ground_image = pygame.image.load("ground.png")
 ground_image = pygame.transform.scale(ground_image, (ground_image.get_width() * 4, ground_image.get_height() * 4))
 
 roaree_image = pygame.image.load("roaree.png")
-roaree_image = pygame.transform.scale(roaree_image, (roaree_image.get_width() *  3, roaree_image.get_height() * 3))
+roaree_image = pygame.transform.scale(roaree_image, (roaree_image.get_width() *  2.5, roaree_image.get_height() * 2.5))
 
 roaree_large = pygame.transform.scale(roaree_image, (roaree_image.get_width() *  2, roaree_image.get_height() * 2))
 
