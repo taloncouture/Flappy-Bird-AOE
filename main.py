@@ -87,7 +87,7 @@ class Roaree(pygame.sprite.Sprite):
     def input(self):
         keys = pygame.key.get_pressed()
 
-        if(keys[pygame.K_SPACE]):
+        if(keys[pygame.K_r]):
             self.velocity = -7
         
 
@@ -121,7 +121,7 @@ while running:
 
     keys = pygame.key.get_pressed()
 
-    if(keys[pygame.K_SPACE] and playing == False):
+    if(keys[pygame.K_r] and playing == False):
         init_game()
         initalized = True
         score = 0
