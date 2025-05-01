@@ -42,7 +42,7 @@ ground2_x = ground_image.get_width()
 
 building_min = 200
 building_max = 700
-gap = 200
+gap = 400
 
 
 class Building(pygame.sprite.Sprite):
@@ -84,11 +84,11 @@ class Roaree(pygame.sprite.Sprite):
         if((self.rect.y + self.rect.height) > HEIGHT - 44):
             self.rect.y = HEIGHT - self.rect.height -44
 
-    def input(self):
-        keys = pygame.key.get_pressed()
+    # def input(self):
+    #     keys = pygame.key.get_pressed()
 
-        if(keys[pygame.K_r]):
-            self.velocity = -7
+    #     if(keys[pygame.K_r] and self.rect.y >= 0):
+    #         self.velocity = -7
         
 
     def draw(self, surface):
@@ -119,6 +119,10 @@ while running:
             running = False
             pygame.quit()
 
+        if playing and event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r and roaree.rect.y >= 0:
+                roaree.velocity = -12
+
     keys = pygame.key.get_pressed()
 
     if(keys[pygame.K_r] and playing == False):
@@ -128,6 +132,7 @@ while running:
         roaree.rect.x = 100
         roaree.rect.y = 100
         playing = True
+        roaree.velocity = 0
 
     
     screen.fill((66, 191, 245))
@@ -152,7 +157,7 @@ while running:
     if(playing):
 
         
-        roaree.input()
+        #roaree.input()
         roaree.update()
 
         for building in buildings:
