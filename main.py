@@ -8,7 +8,8 @@ FPS = 60
 
 score = 0
 
-
+pygame.mixer.pre_init()
+pygame.mixer.init()
 pygame.init()
 pygame.font.init()
 pygame.display.set_caption("Roaree Flappy Bird")
@@ -43,6 +44,9 @@ ground2_x = ground_image.get_width()
 building_min = 200
 building_max = 700
 gap = 400
+
+jump_sound = pygame.mixer.Sound("jump.wav")
+game_over_sound = pygame.mixer.Sound("game_over.wav")
 
 
 class Building(pygame.sprite.Sprite):
@@ -84,11 +88,13 @@ class Roaree(pygame.sprite.Sprite):
         if((self.rect.y + self.rect.height) > HEIGHT - 44):
             self.rect.y = HEIGHT - self.rect.height -44
 
-    # def input(self):
-    #     keys = pygame.key.get_pressed()
+    def input(self):
+        keys = pygame.key.get_pressed()
 
-    #     if(keys[pygame.K_r] and self.rect.y >= 0):
-    #         self.velocity = -7
+        if(keys[pygame.K_r] and self.rect.y >= 32):
+            self.velocity = -7
+            if not pygame.mixer.get_busy():
+                pygame.mixer.Sound.play(jump_sound)
         
 
     def draw(self, surface):
@@ -119,9 +125,9 @@ while running:
             running = False
             pygame.quit()
 
-        if playing and event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_r and roaree.rect.y >= 0:
-                roaree.velocity = -12
+        # if playing and event.type == pygame.KEYDOWN:
+        #     if event.key == pygame.K_r and roaree.rect.y >= 0 and roaree.velocity > -6:
+        #         roaree.velocity = -12
 
     keys = pygame.key.get_pressed()
 
@@ -157,7 +163,7 @@ while running:
     if(playing):
 
         
-        #roaree.input()
+        roaree.input()
         roaree.update()
 
         for building in buildings:
@@ -166,6 +172,7 @@ while running:
             
             if(roaree.rect.colliderect(building.rect) or (roaree.rect.y + roaree.rect.height) >= HEIGHT - 44):
                 playing = False
+                pygame.mixer.Sound.play(game_over_sound)
 
             if(building.rect.x + building.rect.width < 0):
                 building.rect.x += 1200
